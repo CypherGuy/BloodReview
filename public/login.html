@@ -18,7 +18,7 @@
         </div>
     </header>
     <h1> Login to BloodReview</h1>
-    <form action="/login" method="POST">
+    <form id="loginForm" action="/login" method="POST">
         <p class="loginText">Username</p>
         <input type="text" id="username" name="username" class="loginDetails" required>
         <br>
@@ -31,7 +31,54 @@
         <button type="submit">Login</button>
     </form>
     <br>
+    <div id="message"></div>
     <a href="/signup">Don't have an account? Register here.</a>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const messageDiv = document.getElementById('message');
+
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(loginForm);
+            const username = formData.get('username');
+            const password = formData.get('password');
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    messageDiv.textContent = data.message;
+                    messageDiv.style.color = 'green';
+                    messageDiv.style.fontWeight = 'bold';
+                    messageDiv.style.fontStyle = 'italic';
+                    messageDiv.style.fontSize = '1.2em';
+                } else {
+                    messageDiv.textContent = data.message;
+                    messageDiv.style.color = 'red';
+                    messageDiv.style.fontWeight = 'bold';
+                    messageDiv.style.fontStyle = 'italic';
+                    messageDiv.style.fontSize = '1.2em';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                messageDiv.textContent = 'An error occurred. Please try again later.';
+                messageDiv.style.color = 'red';
+                messageDiv.style.fontWeight = 'bold';
+                messageDiv.style.fontStyle = 'italic';
+                messageDiv.style.fontSize = '1.2em';
+            }
+        });
+    </script>
 </body>
 
 </html>

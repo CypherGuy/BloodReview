@@ -68,14 +68,18 @@ app.post("/login", (req, res) => {
 }
 );
 
-// Handle GET requests to '/signup'
+// Handle GET requests
 app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'signup.html'));
 });
 
-// Handle GET requests to '/login'
+
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 // Start the server
