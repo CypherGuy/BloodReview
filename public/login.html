@@ -13,7 +13,7 @@
         <div>
             <a class="logo">BloodReview</a>
             <a class="new-page-link" href="/">Home</a>
-            <a class="new-page-link" href="/login">Login</a>
+            <a class="new-page-link" href="/signup">Sign up</a>
             <a class="new-page-link" href="/about">About</a>
         </div>
     </header>
@@ -57,11 +57,12 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    messageDiv.textContent = data.message;
-                    messageDiv.style.color = 'green';
-                    messageDiv.style.fontWeight = 'bold';
-                    messageDiv.style.fontStyle = 'italic';
-                    messageDiv.style.fontSize = '1.2em';
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        window.location.href = '/';
+                    }
+
                 } else {
                     messageDiv.textContent = data.message;
                     messageDiv.style.color = 'red';
@@ -71,7 +72,7 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-                messageDiv.textContent = 'An error occurred. Please try again later.';
+                messageDiv.textContent = error.message;
                 messageDiv.style.color = 'red';
                 messageDiv.style.fontWeight = 'bold';
                 messageDiv.style.fontStyle = 'italic';

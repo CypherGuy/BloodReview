@@ -1,5 +1,6 @@
 // Import required modules
 const express = require('express');
+const session = require('express-session');
 const mysql = require('mysql');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -16,6 +17,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Set up middleware to parse request bodies as JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Middleware to initialize session
+app.use(session({
+  secret: 'your_secret_key', // Change this to a random string
+  resave: false,
+  saveUninitialized: true
+}));
 
 // Create a connection pool to the MySQL server
 const pool = mysql.createPool({
@@ -39,8 +47,10 @@ app.post('/signup', (req, res) => {
       console.error('Failed to insert user:', error);
       return res.status(500).json({ message: 'Failed to create account. Please try again.' });
     }
+
+    req.session.user = { username: results[0].username, id: results[0].id }; // Storing user ID if needed
     console.log('User inserted successfully');
-    return res.status(200).json({ message: 'Account created successfully!' });
+    return res.redirect('/dashboard');
   });
 });
 
@@ -54,16 +64,18 @@ app.post("/login", (req, res) => {
   pool.query(query, values, (error, results) => {
     if (error) {
       console.error('Failed to query database:', error);
-      return res.status(500).json({ message: 'Failed to login. Please try again.' });
+      return res.status(500).json({ message: 'Failed to login. Please try again.'});
     }
 
     if (results.length === 0) {
       console.log('User not found');
-      return res.status(401).json({ message: 'Invalid username or password' });
+      return res.status(401).json({ message: 'Invalid username or password.' });
     }
 
+    req.session.user = { username: results[0].username, id: results[0].id }; // Storing user ID if needed
     console.log('User logged in successfully');
-    return res.status(200).json({ message: 'Login successful!' });
+    return res.status(200).json({ message: 'Login Successful!', redirect: "/dashboard"});
+    
   });
 }
 );
@@ -78,7 +90,18 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-app.get('/dashboard', (req, res) => {
+// Middleware to check if user is authenticated
+function isAuthenticated(req, res, next) {
+  if (req.session && req.session.user) {
+      // User is authenticated
+      next();
+  } else {
+      // User is not authenticated
+      res.redirect('/login'); // Redirect to login page
+  }
+}
+
+app.get('/dashboard', isAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
