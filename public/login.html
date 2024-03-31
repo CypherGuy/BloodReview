@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>BloodReview</title>
+</head>
+
+<body>
+    <header>
+        <div>
+            <a class="logo">BloodReview</a>
+            <a class="new-page-link" href="/">Home</a>
+            <a class="new-page-link" href="/login">Login</a>
+            <a class="new-page-link" href="/about">About</a>
+        </div>
+    </header>
+    <h1> Login to BloodReview</h1>
+    <form action="/login" method="POST">
+        <p class="loginText">Username</p>
+        <input type="text" id="username" name="username" class="loginDetails" required>
+        <br>
+        <br>
+        <br>
+        <p class="loginText">Password</p>
+        <input type="password" id="password" name="password" class="loginDetails" required>
+        <br>
+        <br>
+        <button type="submit">Login</button>
+    </form>
+    <br>
+    <a href="/signup">Don't have an account? Register here.</a>
+</body>
+
+</html>
