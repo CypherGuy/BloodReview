@@ -82,4 +82,4 @@ Uses [Claude Haiku](https://console.anthropic.com) — the cheapest model, typic
 
 Privacy controls on the Profile page let you choose what context (age, sex, exercise, medications) the AI is allowed to see.
 
-Disclaimer: This project isn't intended for medical advice. Also this was significantly vibe coded with the intention of trying out some new claude skills related to frontend design and security. However the project itself is fully functional.
+Disclaimer: This project isn't intended for medical advice. Also this was significantly vibe coded with the intention of trying out some new Claude skills related to frontend design and security. However the project itself is fully functional.
