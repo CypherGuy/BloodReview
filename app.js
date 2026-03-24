@@ -1,118 +1,148 @@
-// Import required modules
-const express = require('express');
-const session = require('express-session');
-const mysql = require('mysql');
-const dotenv = require('dotenv');
-const path = require('path');
+const express  = require('express');
+const session  = require('express-session');
+const bcrypt   = require('bcrypt');
+const dotenv   = require('dotenv');
+const path     = require('path');
+// mysql2 is used in db.js — no direct import needed here
 
-// Load environment variables from .env file
-dotenv.config();
+dotenv.config({ override: true });
 
-// Create an Express application
+const pool              = require('./db');
+const { isAuthenticated } = require('./middleware');
+
 const app = express();
 
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+// ── Security headers ──────────────────────────────────────────────────────────
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data:",
+      "connect-src 'self'",
+      "frame-ancestors 'none'",
+    ].join('; ')
+  );
+  next();
+});
 
-// Set up middleware to parse request bodies as JSON
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Middleware to initialize session
 app.use(session({
-  secret: 'your_secret_key', // Change this to a random string
+  secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 8 * 60 * 60 * 1000, // 8 hours
+  },
 }));
 
-// Create a connection pool to the MySQL server
-const pool = mysql.createPool({
-  connectionLimit: 10,
-  host: 'localhost',
-  user: 'root',
-  password: process.env.DATABASE_PASSWORD,
-  database: 'users'
-});
+// ── Auth ──────────────────────────────────────────────────────────────────────
 
-// Handle POST requests to '/signup'
-app.post('/signup', (req, res) => {
+app.post('/signup', async (req, res) => {
   const { username, password } = req.body;
 
-  // Insert user into MySQL database
-  const query = 'INSERT INTO logins (username, password) VALUES (?, ?)';
-  const values = [username, password];
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username and password are required.' });
+  }
+  if (username.length < 3) {
+    return res.status(400).json({ message: 'Username must be at least 3 characters.' });
+  }
+  if (password.length < 8) {
+    return res.status(400).json({ message: 'Password must be at least 8 characters.' });
+  }
 
-  pool.query(query, values, (error, results) => {
-    if (error) {
-      console.error('Failed to insert user:', error);
-      return res.status(500).json({ message: 'Failed to create account. Please try again.' });
-    }
-
-    req.session.user = { username: results[0].username, id: results[0].id }; // Storing user ID if needed
-    console.log('User inserted successfully');
-    return res.redirect('/dashboard');
-  });
+  try {
+    const hash = await bcrypt.hash(password, 10);
+    pool.query('INSERT INTO logins (username, password) VALUES (?, ?)', [username, hash], (err, results) => {
+      if (err) {
+        if (err.code === 'ER_DUP_ENTRY') {
+          return res.status(409).json({ message: 'Username already taken.' });
+        }
+        console.error('Signup error:', err);
+        return res.status(500).json({ message: 'Failed to create account. Please try again.' });
+      }
+      req.session.regenerate((regenErr) => {
+        if (regenErr) return res.status(500).json({ message: 'Session error. Please try again.' });
+        req.session.user = { id: results.insertId, username };
+        return res.redirect('/dashboard');
+      });
+    });
+  } catch (err) {
+    console.error('Bcrypt error:', err);
+    return res.status(500).json({ message: 'Something went wrong. Please try again.' });
+  }
 });
 
-app.post("/login", (req, res) => {
+app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
-  // Check if user exists in MySQL database
-  const query = 'SELECT * FROM logins WHERE username = ? AND password = ?';
-  const values = [username, password];
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username and password are required.' });
+  }
 
-  pool.query(query, values, (error, results) => {
-    if (error) {
-      console.error('Failed to query database:', error);
-      return res.status(500).json({ message: 'Failed to login. Please try again.'});
+  pool.query('SELECT * FROM logins WHERE username = ?', [username], async (err, results) => {
+    if (err) {
+      console.error('Login error:', err);
+      return res.status(500).json({ message: 'Failed to login. Please try again.' });
     }
-
     if (results.length === 0) {
-      console.log('User not found');
       return res.status(401).json({ message: 'Invalid username or password.' });
     }
 
-    req.session.user = { username: results[0].username, id: results[0].id }; // Storing user ID if needed
-    console.log('User logged in successfully');
-    return res.status(200).json({ message: 'Login Successful!', redirect: "/dashboard"});
-    
+    const user  = results[0];
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({ message: 'Invalid username or password.' });
+    }
+
+    // Regenerate session ID to prevent session fixation
+    req.session.regenerate((regenErr) => {
+      if (regenErr) return res.status(500).json({ message: 'Session error. Please try again.' });
+      req.session.user = { id: user.id, username: user.username };
+      return res.status(200).json({ message: 'Login successful!', redirect: '/dashboard' });
+    });
   });
-}
-);
-
-// Handle GET requests
-app.get('/signup', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'signup.html'));
 });
 
-
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+app.post('/logout', (req, res) => {
+  req.session.destroy(() => res.redirect('/'));
 });
 
-// Middleware to check if user is authenticated
-function isAuthenticated(req, res, next) {
-  if (req.session && req.session.user) {
-      // User is authenticated
-      next();
-  } else {
-      // User is not authenticated
-      res.redirect('/login'); // Redirect to login page
-  }
-}
+// ── Routes ────────────────────────────────────────────────────────────────────
 
-app.get('/dashboard', isAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
-});
+const uploadRouter = require('./routes/upload');
+const apiRouter    = require('./routes/api');
+app.use('/upload', uploadRouter);
+app.use('/api',    apiRouter);
 
-// Start the server
+// ── Static pages ──────────────────────────────────────────────────────────────
+
+app.get('/signup', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'signup.html')));
+app.get('/login',  (_req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+
+app.get('/dashboard', isAuthenticated, (_req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
+app.get('/tests',     isAuthenticated, (_req, res) => res.sendFile(path.join(__dirname, 'public', 'tests.html')));
+app.get('/trends',    isAuthenticated, (_req, res) => res.sendFile(path.join(__dirname, 'public', 'trends.html')));
+app.get('/profile',   isAuthenticated, (_req, res) => res.sendFile(path.join(__dirname, 'public', 'profile.html')));
+
+// ── Server ────────────────────────────────────────────────────────────────────
+
 const PORT = process.env.PORT || 5500;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`BloodReview running on port ${PORT}`));
 
-// Error handling middleware
-app.use((err, req, res, next) => {
+app.use((err, _req, res, _next) => {
   console.error(err.stack);
   res.status(500).send('Something went wrong!');
 });

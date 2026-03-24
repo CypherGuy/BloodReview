@@ -1,54 +1,655 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BloodView - Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BloodReview – Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Base ─────────────────────────────────────────────────────────────── */
+    body {
+      background-color: #f9f6f1;
+      background-image: radial-gradient(circle, rgba(197,122,30,0.13) 1px, transparent 1px);
+      background-size: 28px 28px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    main {
+      max-width: 980px;
+      padding: 2.5rem 1.25rem 5rem;
+    }
+
+    /* ── Page heading ─────────────────────────────────────────────────────── */
+    .dash-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #c57a1e;
+      margin-bottom: 0.4rem;
+    }
+    .dash-heading {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+      font-style: italic;
+      color: #1a1714;
+      line-height: 1.15;
+      margin-bottom: 0.35rem;
+    }
+    .dash-sub {
+      font-size: 0.86rem;
+      color: #b8b0a6;
+      margin-bottom: 2.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .dash-sub::before {
+      content: '';
+      display: inline-block;
+      width: 22px;
+      height: 1px;
+      background: #d8d0c6;
+      flex-shrink: 0;
+    }
+
+    /* ── AI Card — dark luxury panel ──────────────────────────────────────── */
+    .ai-card {
+      background: linear-gradient(160deg, #1f1b15 0%, #2c2014 55%, #1c1610 100%);
+      border-radius: 18px;
+      padding: 2rem 2.25rem;
+      margin-bottom: 2.75rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 10px 48px rgba(0,0,0,0.22),
+        0 1px 0 rgba(197,122,30,0.35) inset;
+    }
+
+    /* Amber glow along top edge */
+    .ai-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 8%; right: 8%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(220,148,40,0.8), transparent);
+    }
+
+    /* Ambient orb — top right */
+    .ai-card::after {
+      content: '';
+      position: absolute;
+      top: -70px; right: -50px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(197,122,30,0.2) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .ai-card-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* Pulsing "AI Analysis" chip */
+    .ai-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: rgba(197,122,30,0.15);
+      border: 1px solid rgba(197,122,30,0.28);
+      border-radius: 20px;
+      padding: 0.28rem 0.72rem;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #e8a848;
+      margin-bottom: 0.8rem;
+    }
+    .ai-chip-dot {
+      width: 6px; height: 6px;
+      background: #c57a1e;
+      border-radius: 50%;
+      animation: chipPulse 2.2s ease-in-out infinite;
+    }
+    @keyframes chipPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.45; transform: scale(0.65); }
+    }
+
+    .ai-card-label {
+      font-family: 'Lora', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      font-style: italic;
+      color: #f5ede0;
+      margin-bottom: 0.45rem;
+      line-height: 1.2;
+    }
+    .ai-card-desc {
+      font-size: 0.82rem;
+      color: rgba(245,237,224,0.48);
+      max-width: 390px;
+      line-height: 1.65;
+    }
+
+    .analyse-btn {
+      flex-shrink: 0;
+      align-self: center;
+      background: linear-gradient(135deg, #c57a1e 0%, #d98c2c 100%);
+      color: #fff;
+      border: none;
+      padding: 0.72rem 1.65rem;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      box-shadow: 0 4px 18px rgba(197,122,30,0.45);
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .analyse-btn:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 7px 24px rgba(197,122,30,0.55);
+    }
+    .analyse-btn:active  { transform: scale(0.97); }
+    .analyse-btn:disabled { opacity: 0.38; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* Bouncing dots loader */
+    .ai-loading {
+      display: none;
+      align-items: center;
+      gap: 0.7rem;
+      margin-top: 1.3rem;
+      color: rgba(245,237,224,0.45);
+      font-size: 0.8rem;
+      font-style: italic;
+    }
+    .ai-loading.show { display: flex; }
+    .ai-dots span {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: #c57a1e;
+      border-radius: 50%;
+      animation: dotBounce 1.25s ease-in-out infinite;
+    }
+    .ai-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .ai-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dotBounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.28; }
+      40%           { transform: translateY(-7px); opacity: 1; }
+    }
+
+    /* AI result — frosted glass on dark */
+    .ai-result {
+      margin-top: 1.3rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(197,122,30,0.18);
+      border-radius: 12px;
+      padding: 1.3rem 1.55rem;
+      font-size: 0.9rem;
+      line-height: 1.88;
+      color: rgba(245,237,224,0.86);
+    }
+    .ai-result p { margin: 0 0 0.85rem; }
+    .ai-result p:last-child { margin-bottom: 0; }
+
+    /* ── Section header ───────────────────────────────────────────────────── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.3rem;
+    }
+    .section-title {
+      font-family: 'Lora', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1a1714;
+      white-space: nowrap;
+    }
+    .section-date {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #c57a1e;
+      background: rgba(197,122,30,0.09);
+      border: 1px solid rgba(197,122,30,0.2);
+      border-radius: 20px;
+      padding: 0.18rem 0.65rem;
+      white-space: nowrap;
+    }
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, #e8e2d8, transparent);
+      min-width: 20px;
+    }
+    .section-hint {
+      font-size: 0.77rem;
+      color: #c4bdb5;
+      margin-bottom: 1.5rem;
+      margin-top: 0.25rem;
+    }
+
+    /* ── Marker grid ──────────────────────────────────────────────────────── */
+    .marker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+      gap: 1rem;
+      margin-bottom: 3.25rem;
+    }
+
+    /* Card entrance animation — JS sets delay per card */
+    .mk {
+      background: #fff;
+      border: 1px solid #ece7df;
+      border-left: 3px solid #ece7df;
+      border-radius: 13px;
+      padding: 1.3rem 1.35rem 1.15rem;
+      transition: box-shadow 0.2s, transform 0.2s;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: cardIn 0.42s ease forwards;
+    }
+    .mk:hover {
+      box-shadow: 0 6px 26px rgba(0,0,0,0.09);
+      transform: translateY(-3px);
+    }
+    .mk.ok   { border-left-color: #27ae60; }
+    .mk.low  { border-left-color: #e74c3c; }
+    .mk.high { border-left-color: #e74c3c; }
+
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .mk-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+    .mk-name {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #a8a09a;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .mk-badge {
+      font-size: 0.63rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 20px;
+      letter-spacing: 0.06em;
+    }
+    .mk-badge.ok      { background: #e8f5ee; color: #1a6b3a; }
+    .mk-badge.low     { background: #fdecea; color: #9b1c1c; }
+    .mk-badge.high    { background: #fdecea; color: #9b1c1c; }
+    .mk-badge.unknown { background: #f3f0eb; color: #999; }
+
+    .mk-val-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.42rem;
+      margin-bottom: 1.05rem;
+    }
+    .mk-val {
+      font-family: 'Lora', serif;
+      font-size: 2.55rem;
+      font-weight: 700;
+      line-height: 1;
+      color: #1a1714;
+      letter-spacing: -0.025em;
+    }
+    .mk-unit {
+      font-size: 0.73rem;
+      color: #c4bdb5;
+      font-weight: 400;
+    }
+
+    /* Gradient range bar */
+    .mk-bar {
+      height: 8px;
+      border-radius: 4px;
+      position: relative;
+      overflow: visible;
+    }
+    .mk-dot {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 2.5px solid #fff;
+      box-shadow: 0 2px 7px rgba(0,0,0,0.22);
+      z-index: 2;
+    }
+    .mk-dot.ok   { background: #27ae60; }
+    .mk-dot.low  { background: #e74c3c; }
+    .mk-dot.high { background: #e74c3c; }
+
+    .mk-range-lbl {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.64rem;
+      color: #d4cdc5;
+      margin-top: 0.42rem;
+    }
+    .mk-range-lbl .norm { color: #7fcca0; font-weight: 600; }
+
+    .mk-no-range {
+      height: 8px;
+      background: #f3f0eb;
+      border-radius: 4px;
+      margin-bottom: 0.4rem;
+    }
+    .mk-no-range-lbl { font-size: 0.67rem; color: #d4cdc5; font-style: italic; }
+
+    /* Skeleton shimmer */
+    .mk-skeleton {
+      height: 152px;
+      border-radius: 13px;
+      background: linear-gradient(90deg, #f3efe8 25%, #ebe5db 50%, #f3efe8 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── Nav cards ────────────────────────────────────────────────────────── */
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #c4bdb5;
+      margin-bottom: 0.9rem;
+    }
+
+    .nav-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+      margin-bottom: 2.75rem;
+    }
+    .nav-card {
+      background: #fff;
+      border: 1px solid #ece7df;
+      border-radius: 13px;
+      padding: 1.3rem 1.35rem;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+    }
+    /* Amber slide-in underline */
+    .nav-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #c57a1e, #e8a848);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.22s ease;
+    }
+    .nav-card:hover {
+      box-shadow: 0 6px 22px rgba(0,0,0,0.08);
+      transform: translateY(-3px);
+      border-color: #ddd6cc;
+    }
+    .nav-card:hover::after { transform: scaleX(1); }
+
+    .nav-card-icon { font-size: 1.35rem; margin-bottom: 0.6rem; display: block; }
+    .nav-card-title {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1a1714;
+      margin-bottom: 0.25rem;
+    }
+    .nav-card-desc { font-size: 0.78rem; color: #a8a09a; line-height: 1.5; }
+
+    /* ── Responsive ───────────────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .dash-heading { font-size: 1.85rem; }
+      .mk-val { font-size: 2.1rem; }
+      .ai-card { padding: 1.5rem 1.25rem; }
+      .ai-card-inner { flex-direction: column; }
+      .analyse-btn { width: 100%; }
+      .nav-cards { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
-
 <body>
-    <header>
-        <div>
-            <a class="logo">BloodReview</a>
-            <a class="new-page-link" href="/">Logout</a>
-            <a class="new-page-link" href="/about">About</a>
-        </div>
-    </header>
-
-
-    <h1>Your Dashboard</h1>
+  <header>
     <div>
-        <h2>Recent Blood Test Results</h2>
-        <table>
-            <tr>
-                <th>Date</th>
-                <th>White Blood Cell Count</th>
-                <th>Red Blood Cell Count</th>
-                <th>Platelet Count</th>
-            </tr>
-            <tr>
-                <td>2021-01-01</td>
-                <td>5.0</td>
-                <td>4.5</td>
-                <td>150</td>
-            </tr>
-            <tr>
-                <td>2021-02-01</td>
-                <td>4.8</td>
-                <td>4.3</td>
-                <td>140</td>
-            </tr>
-            <tr>
-                <td>2021-03-01</td>
-                <td>4.9</td>
-                <td>4.4</td>
-                <td>145</td>
-            </tr>
-        </table>
+      <a class="logo" href="/dashboard">BloodReview</a>
+      <a class="new-page-link" href="/tests">Tests</a>
+      <a class="new-page-link" href="/trends">Trends</a>
+      <a class="new-page-link" href="/profile">Profile</a>
+      <form action="/logout" method="POST" style="display:inline">
+        <button class="nav-btn" type="submit">Logout</button>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <p class="dash-eyebrow">Health Dashboard</p>
+    <h1 class="dash-heading">Your Blood Overview</h1>
+    <p class="dash-sub">Latest results, at a glance</p>
+
+    <!-- ── AI Overview — dark luxury panel ──────────────────────────────── -->
+    <div class="ai-card">
+      <div class="ai-card-inner">
+        <div>
+          <div class="ai-chip">
+            <span class="ai-chip-dot"></span>
+            AI Analysis
+          </div>
+          <div class="ai-card-label">Health Overview</div>
+          <p class="ai-card-desc">Reviews your last 3 years of results — explains what's happening and gives specific, practical advice on what to do.</p>
+        </div>
+        <button class="analyse-btn" id="overviewBtn">Analyse my results</button>
+      </div>
+
+      <div class="ai-loading" id="overviewSpinner">
+        <div class="ai-dots"><span></span><span></span><span></span></div>
+        Analysing your data — this takes around 10 seconds…
+      </div>
+      <p id="overviewMsg" class="msg hidden"></p>
+      <div id="overviewResult" class="ai-result hidden"></div>
     </div>
 
-</body>
+    <!-- ── Nav ──────────────────────────────────────────────────────────── -->
+    <p class="nav-label">Explore</p>
+    <div class="nav-cards">
+      <a class="nav-card" href="/tests">
+        <span class="nav-card-icon">🩸</span>
+        <div class="nav-card-title">My Tests</div>
+        <div class="nav-card-desc">Upload or review past blood test results.</div>
+      </a>
+      <a class="nav-card" href="/trends">
+        <span class="nav-card-icon">📈</span>
+        <div class="nav-card-title">Trends</div>
+        <div class="nav-card-desc">See how your markers have changed over time.</div>
+      </a>
+      <a class="nav-card" href="/profile">
+        <span class="nav-card-icon">👤</span>
+        <div class="nav-card-title">Profile</div>
+        <div class="nav-card-desc">Health info and AI privacy settings.</div>
+      </a>
+    </div>
 
+    <!-- ── Latest results ───────────────────────────────────────────────── -->
+    <div class="section-header">
+      <span class="section-title">Latest Results</span>
+      <span class="section-date" id="latestDate"></span>
+      <span class="section-line"></span>
+    </div>
+    <p class="section-hint">The dot shows where your value sits on the range — green zone is normal, red means outside the reference range.</p>
+
+    <div class="marker-grid" id="markerCards">
+      <div class="mk-skeleton"></div>
+      <div class="mk-skeleton"></div>
+      <div class="mk-skeleton"></div>
+      <div class="mk-skeleton"></div>
+      <div class="mk-skeleton"></div>
+      <div class="mk-skeleton"></div>
+    </div>
+  </main>
+
+  <script>
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // ── Latest markers ────────────────────────────────────────────────────────
+    async function loadLatestMarkers() {
+      const grid = document.getElementById('markerCards');
+      try {
+        const res  = await fetch('/api/latest-markers');
+        const data = await res.json();
+
+        if (!data.length) {
+          grid.innerHTML = '<p style="grid-column:1/-1;color:#b8b0a6;font-size:0.92rem">No tests yet. <a href="/tests" style="color:#c57a1e">Upload your first →</a></p>';
+          return;
+        }
+
+        const d = new Date(data[0].test_date);
+        document.getElementById('latestDate').textContent =
+          d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        grid.innerHTML = data.map(renderCard).join('');
+
+        // Stagger card entrance
+        grid.querySelectorAll('.mk').forEach((el, i) => {
+          el.style.animationDelay = `${i * 0.055}s`;
+        });
+      } catch {
+        grid.innerHTML = '<p style="grid-column:1/-1;color:#b8b0a6;font-size:0.92rem">Failed to load results. Please refresh.</p>';
+      }
+    }
+
+    function renderCard(m) {
+      const value = parseFloat(m.value);
+      const low   = m.reference_low  != null ? parseFloat(m.reference_low)  : null;
+      const high  = m.reference_high != null ? parseFloat(m.reference_high) : null;
+
+      let status = 'unknown', badge = '—';
+      if (low != null && high != null) {
+        if      (value < low)  { status = 'low';  badge = '↓ LOW';    }
+        else if (value > high) { status = 'high'; badge = '↑ HIGH';   }
+        else                   { status = 'ok';   badge = '✓ Normal'; }
+      }
+
+      let barHtml = '';
+      if (low != null && high != null) {
+        const dMax    = high * 1.65;
+        const lowPct  = (low  / dMax * 100).toFixed(1);
+        const highPct = (high / dMax * 100).toFixed(1);
+        const valPct  = Math.min(Math.max(value / dMax * 100, 1), 99).toFixed(1);
+        const fadeIn  = Math.max(0,   +lowPct  - 10).toFixed(1);
+        const fadeOut = Math.min(100, +highPct + 10).toFixed(1);
+
+        const gradient = `linear-gradient(to right,
+          #e74c3c 0%,
+          #e67e22 ${fadeIn}%,
+          #27ae60 ${lowPct}%,
+          #27ae60 ${highPct}%,
+          #e67e22 ${fadeOut}%,
+          #e74c3c 100%)`;
+
+        barHtml = `
+          <div class="mk-bar" style="background:${gradient}">
+            <div class="mk-dot ${status}" style="left:${valPct}%"></div>
+          </div>
+          <div class="mk-range-lbl">
+            <span>0</span>
+            <span class="norm">${low}–${high} normal</span>
+            <span>${Math.round(dMax)}</span>
+          </div>`;
+      } else {
+        barHtml = `
+          <div class="mk-no-range"></div>
+          <div class="mk-no-range-lbl">No reference range set</div>`;
+      }
+
+      return `
+        <div class="mk ${status}">
+          <div class="mk-top">
+            <span class="mk-name">${escapeHtml(m.marker_name)}</span>
+            <span class="mk-badge ${status}">${escapeHtml(badge)}</span>
+          </div>
+          <div class="mk-val-row">
+            <span class="mk-val">${value}</span>
+            <span class="mk-unit">${escapeHtml(m.unit || '')}</span>
+          </div>
+          ${barHtml}
+        </div>`;
+    }
+
+    // ── AI Overview ───────────────────────────────────────────────────────────
+    document.getElementById('overviewBtn').addEventListener('click', async () => {
+      const btn     = document.getElementById('overviewBtn');
+      const spinner = document.getElementById('overviewSpinner');
+      const msg     = document.getElementById('overviewMsg');
+      const box     = document.getElementById('overviewResult');
+
+      btn.disabled = true;
+      spinner.classList.add('show');
+      msg.classList.add('hidden');
+      box.classList.add('hidden');
+
+      try {
+        const res  = await fetch('/api/analyse/overview', { method: 'POST' });
+        const data = await res.json();
+
+        if (!res.ok) {
+          msg.textContent = data.message;
+          msg.className   = 'msg error';
+          msg.classList.remove('hidden');
+          return;
+        }
+
+        box.innerHTML = data.analysis
+          .split(/\n\n+/)
+          .filter(p => p.trim())
+          .map(p => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`)
+          .join('');
+        box.classList.remove('hidden');
+        btn.textContent = data.cached ? 'Refresh analysis' : 'Re-analyse';
+      } catch {
+        msg.textContent = 'Analysis failed. Please try again.';
+        msg.className   = 'msg error';
+        msg.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        spinner.classList.remove('show');
+      }
+    });
+
+    loadLatestMarkers();
+  </script>
+</body>
 </html>

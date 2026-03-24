@@ -1,0 +1,14 @@
+marker_name,value,unit,reference_low,reference_high
+Haemoglobin,145,g/L,130,170
+White Blood Cells,6.2,10^9/L,4.0,11.0
+Red Blood Cells,4.8,10^12/L,4.5,5.5
+Platelets,230,10^9/L,150,400
+Sodium,140,mmol/L,136,145
+Potassium,4.1,mmol/L,3.5,5.0
+Creatinine,82,µmol/L,62,106
+eGFR,88,mL/min/1.73m²,60,999
+Glucose,5.2,mmol/L,3.9,5.6
+HbA1c,38,mmol/mol,20,42
+TSH,2.1,mIU/L,0.4,4.0
+Vitamin D,42,nmol/L,50,125
+Ferritin,28,µg/L,30,400

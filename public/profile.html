@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BloodReview – Profile</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    body { background: #faf8f5; font-family: 'DM Sans', sans-serif; }
+
+    .page-heading {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 1.9rem;
+      font-weight: 600;
+      font-style: italic;
+      color: #1a1714;
+      margin-bottom: 0.2rem;
+    }
+    .page-sub { font-size: 0.88rem; color: #9e9690; margin-bottom: 2rem; }
+
+    /* ── Section cards ────────────────────────────────────────────────────── */
+    .section-card {
+      background: #fff;
+      border: 1px solid #ece7df;
+      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.5rem;
+      max-width: 640px;
+    }
+    .section-card h2 {
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1a1714;
+      margin-bottom: 0.3rem;
+    }
+    .section-desc {
+      font-size: 0.82rem;
+      color: #aaa49e;
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+
+    /* ── Form fields ──────────────────────────────────────────────────────── */
+    .field { margin-bottom: 1.1rem; }
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #7a746c;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.35rem;
+    }
+    .field input, .field select, .field textarea {
+      display: block;
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1.5px solid #ece7df;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      color: #1a1714;
+      background: #fff;
+      transition: border-color 0.15s;
+      margin-bottom: 0;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none;
+      border-color: #c57a1e;
+    }
+    .field textarea { resize: vertical; min-height: 70px; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+
+    /* ── Privacy toggles ──────────────────────────────────────────────────── */
+    .toggle-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid #f5f2ec;
+    }
+    .toggle-item:last-of-type { border-bottom: none; }
+    .toggle-info { flex: 1; padding-right: 1.5rem; }
+    .toggle-info-label {
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: #1a1714;
+    }
+    .toggle-info-sub {
+      font-size: 0.78rem;
+      color: #aaa49e;
+      margin-top: 0.1rem;
+    }
+
+    /* iOS-style toggle switch */
+    .toggle-switch {
+      position: relative;
+      width: 46px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: #ddd8d0;
+      border-radius: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    }
+    .toggle-switch input:checked + .toggle-track { background: #c57a1e; }
+    .toggle-switch input:checked + .toggle-track::after { transform: translateX(20px); }
+
+    /* ── Save button area ─────────────────────────────────────────────────── */
+    .save-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .save-btn {
+      background: #c57a1e;
+      color: white;
+      border: none;
+      padding: 0.65rem 1.5rem;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .save-btn:hover:not(:disabled) { background: #a8651a; }
+    .save-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .spinner-text { font-size: 0.82rem; color: #aaa; font-style: italic; }
+
+    /* ── Danger zone ──────────────────────────────────────────────────────── */
+    .danger-card {
+      background: #fff;
+      border: 1px solid #f5d0cc;
+      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      max-width: 640px;
+    }
+    .danger-card h2 {
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1a1714;
+      margin-bottom: 0.3rem;
+    }
+    .danger-card .section-desc { margin-bottom: 1.1rem; }
+
+    .danger-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .export-btn {
+      background: none;
+      border: 1.5px solid #ece7df;
+      color: #1a1714;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+      display: inline-block;
+    }
+    .export-btn:hover { border-color: #c57a1e; color: #c57a1e; }
+
+    .delete-btn {
+      background: none;
+      border: 1.5px solid #f5d0cc;
+      color: #c0392b;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .delete-btn:hover { background: #fdecea; border-color: #e74c3c; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <a class="logo" href="/dashboard">BloodReview</a>
+      <a class="new-page-link" href="/tests">Tests</a>
+      <a class="new-page-link" href="/trends">Trends</a>
+      <a class="new-page-link" href="/profile">Profile</a>
+      <form action="/logout" method="POST" style="display:inline">
+        <button class="nav-btn" type="submit">Logout</button>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <h1 class="page-heading">Your Profile</h1>
+    <p class="page-sub">Personal health context helps the AI give you more relevant advice.</p>
+
+    <form id="profileForm">
+
+      <!-- Personal details -->
+      <div class="section-card">
+        <h2>Personal details</h2>
+        <p class="section-desc">This information is only used when you choose to share it with the AI. None of it is required.</p>
+
+        <div class="field">
+          <label for="display_name">Name (optional)</label>
+          <input type="text" id="display_name" name="display_name" placeholder="How you'd like to be referred to">
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="age">Age</label>
+            <input type="number" id="age" name="age" min="0" max="130" placeholder="e.g. 34">
+          </div>
+          <div class="field">
+            <label for="sex">Sex</label>
+            <select id="sex" name="sex">
+              <option value="">Prefer not to say</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="exercise_frequency">Exercise frequency</label>
+          <input type="text" id="exercise_frequency" name="exercise_frequency" placeholder="e.g. 3× per week, daily walks, mostly sedentary">
+        </div>
+
+        <div class="field">
+          <label for="medications">Medications &amp; supplements</label>
+          <textarea id="medications" name="medications" placeholder="e.g. Vitamin D 1000IU, Metformin 500mg"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="notes">Other health notes</label>
+          <textarea id="notes" name="notes" placeholder="Anything else relevant to your health context"></textarea>
+        </div>
+      </div>
+
+      <!-- AI privacy -->
+      <div class="section-card">
+        <h2>AI privacy settings</h2>
+        <p class="section-desc">Choose what the AI is allowed to see when it analyses your blood tests. You can change this any time.</p>
+
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-info-label">Share age</div>
+            <div class="toggle-info-sub">Helps the AI apply age-appropriate reference ranges</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="ai_can_see_age" name="ai_can_see_age" checked>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-info-label">Share sex</div>
+            <div class="toggle-info-sub">Some markers have different reference ranges by sex</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="ai_can_see_sex" name="ai_can_see_sex" checked>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-info-label">Share exercise frequency</div>
+            <div class="toggle-info-sub">Helps contextualise markers like CK, haematocrit, and resting heart rate</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="ai_can_see_exercise" name="ai_can_see_exercise" checked>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-info-label">Share medications &amp; supplements</div>
+            <div class="toggle-info-sub">Off by default — only enable if you're comfortable sharing this</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="ai_can_see_medications" name="ai_can_see_medications">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="save-row">
+        <button class="save-btn" type="submit" id="saveBtn">Save profile</button>
+        <span class="spinner-text hidden" id="saveSpinner">Saving…</span>
+        <p id="saveMsg" class="msg hidden"></p>
+      </div>
+
+    </form>
+
+    <!-- Danger zone -->
+    <div class="danger-card" style="margin-top:2.5rem">
+      <h2>Your data</h2>
+      <p class="section-desc">Export a full copy of your data, or permanently delete your account.</p>
+      <div class="danger-row">
+        <a class="export-btn" href="/api/export" download>↓ Export all data (JSON)</a>
+        <button class="delete-btn" id="deleteBtn">Delete my account</button>
+      </div>
+      <p id="deleteMsg" class="msg hidden" style="margin-top:0.75rem"></p>
+    </div>
+  </main>
+
+  <script>
+    async function loadProfile() {
+      const res  = await fetch('/api/profile');
+      const data = await res.json();
+
+      document.getElementById('display_name').value       = data.display_name       || '';
+      document.getElementById('age').value                = data.age                || '';
+      document.getElementById('sex').value                = data.sex                || '';
+      document.getElementById('exercise_frequency').value = data.exercise_frequency || '';
+      document.getElementById('medications').value        = data.medications        || '';
+      document.getElementById('notes').value              = data.notes              || '';
+
+      document.getElementById('ai_can_see_age').checked         = data.ai_can_see_age        !== 0;
+      document.getElementById('ai_can_see_sex').checked         = data.ai_can_see_sex        !== 0;
+      document.getElementById('ai_can_see_exercise').checked    = data.ai_can_see_exercise   !== 0;
+      document.getElementById('ai_can_see_medications').checked = data.ai_can_see_medications === 1;
+    }
+
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg     = document.getElementById('saveMsg');
+      const spinner = document.getElementById('saveSpinner');
+      const btn     = document.getElementById('saveBtn');
+      spinner.classList.remove('hidden');
+      msg.classList.add('hidden');
+      btn.disabled = true;
+
+      const body = {
+        display_name:           document.getElementById('display_name').value,
+        age:                    document.getElementById('age').value || null,
+        sex:                    document.getElementById('sex').value || null,
+        exercise_frequency:     document.getElementById('exercise_frequency').value,
+        medications:            document.getElementById('medications').value,
+        notes:                  document.getElementById('notes').value,
+        ai_can_see_age:         document.getElementById('ai_can_see_age').checked,
+        ai_can_see_sex:         document.getElementById('ai_can_see_sex').checked,
+        ai_can_see_exercise:    document.getElementById('ai_can_see_exercise').checked,
+        ai_can_see_medications: document.getElementById('ai_can_see_medications').checked,
+      };
+
+      try {
+        const res  = await fetch('/api/profile', {
+          method:  'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(body),
+        });
+        const data = await res.json();
+        msg.textContent = data.message;
+        msg.className   = res.ok ? 'msg success' : 'msg error';
+        msg.classList.remove('hidden');
+      } catch {
+        msg.textContent = 'Save failed. Please try again.';
+        msg.className   = 'msg error';
+        msg.classList.remove('hidden');
+      } finally {
+        spinner.classList.add('hidden');
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('deleteBtn').addEventListener('click', async () => {
+      if (!confirm('This will permanently delete your account and all your blood test data. This cannot be undone. Are you sure?')) return;
+      const msg = document.getElementById('deleteMsg');
+      const res  = await fetch('/api/account', { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok) {
+        window.location.href = '/';
+      } else {
+        msg.textContent = data.message;
+        msg.className   = 'msg error';
+        msg.classList.remove('hidden');
+      }
+    });
+
+    loadProfile();
+  </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "bloodreview",
+  "version": "1.0.0",
+  "description": "Track, analyse and evaluate blood test results",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.0",
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@aws-sdk/s3-request-presigner": "^3.600.0",
+    "bcrypt": "^5.1.1",
+    "csv-parse": "^5.5.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "multer": "^2.1.1",
+    "mysql2": "^3.20.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

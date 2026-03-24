@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BloodReview – My Tests</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    body { background: #faf8f5; font-family: 'DM Sans', sans-serif; }
+
+    .page-heading {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 1.9rem;
+      font-weight: 600;
+      font-style: italic;
+      color: #1a1714;
+      margin-bottom: 0.2rem;
+    }
+    .page-sub { font-size: 0.88rem; color: #9e9690; margin-bottom: 2rem; }
+
+    /* ── Tab bar ──────────────────────────────────────────────────────────── */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #ece7df;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      padding: 0.6rem 1.2rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: #9e9690;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover  { color: #1a1714; }
+    .tab-btn.active { color: #c57a1e; border-bottom-color: #c57a1e; background: none; }
+
+    /* ── Section cards ────────────────────────────────────────────────────── */
+    .section-card {
+      background: #fff;
+      border: 1px solid #ece7df;
+      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.75rem;
+    }
+    .section-card h2 {
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1a1714;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Upload form ──────────────────────────────────────────────────────── */
+    .upload-hint {
+      font-size: 0.82rem;
+      color: #aaa49e;
+      margin-bottom: 1.1rem;
+      line-height: 1.5;
+    }
+    .upload-hint code {
+      background: #f5f2ec;
+      padding: 0.1em 0.35em;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 0.85em;
+    }
+    .upload-hint a { color: #c57a1e; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 1rem;
+      align-items: end;
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 520px) { .form-row { grid-template-columns: 1fr; } }
+
+    /* ── Manual entry rows ────────────────────────────────────────────────── */
+    .marker-entry-row {
+      border: 1px solid #ece7df;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      background: #faf8f5;
+    }
+    .marker-entry-fields {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+      gap: 0.6rem;
+      align-items: end;
+    }
+    .marker-entry-fields input { margin-bottom: 0; }
+    .marker-entry-fields label { font-size: 0.78rem; color: #7a746c; }
+    @media (max-width: 700px) {
+      .marker-entry-fields { grid-template-columns: 1fr 1fr; }
+    }
+
+    .add-row-btn {
+      background: none;
+      border: 1.5px dashed #d5cfc8;
+      color: #9e9690;
+      width: 100%;
+      padding: 0.65rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      margin-bottom: 1.25rem;
+    }
+    .add-row-btn:hover { border-color: #c57a1e; color: #c57a1e; background: #fffbf5; }
+
+    /* ── Past tests list ──────────────────────────────────────────────────── */
+    .section-title {
+      font-family: 'Lora', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1a1714;
+      margin-bottom: 1rem;
+    }
+
+    .test-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 1.1rem;
+      background: #fff;
+      border: 1px solid #ece7df;
+      border-radius: 10px;
+      margin-bottom: 0.6rem;
+      transition: box-shadow 0.15s;
+      cursor: pointer;
+    }
+    .test-item:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+    .test-item.active { border-color: #c57a1e; box-shadow: 0 0 0 2px rgba(197,122,30,0.15); }
+
+    .test-item-date {
+      font-family: 'Lora', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1a1714;
+    }
+    .test-item-meta { font-size: 0.8rem; color: #aaa49e; margin-top: 0.1rem; }
+
+    .view-btn {
+      background: none;
+      border: 1.5px solid #ece7df;
+      color: #7a746c;
+      padding: 0.4rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .view-btn:hover, .test-item.active .view-btn {
+      border-color: #c57a1e;
+      color: #c57a1e;
+      background: #fffbf5;
+    }
+
+    /* ── Marker detail panel ──────────────────────────────────────────────── */
+    .marker-panel {
+      background: #fff;
+      border: 1px solid #ece7df;
+      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      margin-top: 1.75rem;
+    }
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+    .panel-title {
+      font-family: 'Lora', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #1a1714;
+    }
+    .panel-date { font-size: 0.82rem; color: #aaa49e; margin-top: 0.15rem; }
+
+    /* AI analysis within panel */
+    .panel-ai {
+      background: linear-gradient(135deg, #fffbf0 0%, #fff6e0 100%);
+      border: 1px solid #efd888;
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .panel-ai-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #7a5c10;
+      margin-bottom: 0.15rem;
+    }
+    .panel-ai-sub { font-size: 0.78rem; color: #a08040; }
+
+    .ai-loading {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      color: #a08060;
+      font-size: 0.82rem;
+      font-style: italic;
+    }
+    .ai-loading.show { display: flex; }
+    .ai-dots span {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: #c57a1e;
+      border-radius: 50%;
+      animation: dotBounce 1.2s ease-in-out infinite;
+    }
+    .ai-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .ai-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dotBounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
+      40%           { transform: translateY(-5px); opacity: 1; }
+    }
+
+    .ai-result {
+      margin-top: 1rem;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid #f0d890;
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      font-size: 0.9rem;
+      line-height: 1.75;
+      color: #2d2520;
+    }
+    .ai-result p { margin: 0 0 0.6rem; }
+    .ai-result p:last-child { margin-bottom: 0; }
+
+    /* Marker table */
+    .marker-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .marker-table th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #9e9690;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 2px solid #ece7df;
+      background: none;
+    }
+    .marker-table td {
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid #f5f2ec;
+      color: #2d2520;
+    }
+    .marker-table tr:last-child td { border-bottom: none; }
+    .marker-table tr:hover td { background: #faf8f5; }
+
+    /* Mini range bar in table */
+    .mini-bar {
+      height: 6px;
+      border-radius: 3px;
+      position: relative;
+      min-width: 80px;
+      overflow: visible;
+    }
+    .mini-dot {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .mini-dot.ok   { background: #27ae60; }
+    .mini-dot.low  { background: #e74c3c; }
+    .mini-dot.high { background: #e74c3c; }
+
+    .status-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.18rem 0.5rem;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+    }
+    .status-pill.ok   { background: #e5f5ec; color: #1a6b3a; }
+    .status-pill.low  { background: #fdecea; color: #9b1c1c; }
+    .status-pill.high { background: #fdecea; color: #9b1c1c; }
+    .status-pill.none { background: #f0ede8; color: #9e9690; }
+
+    .btn-sm {
+      background: #c57a1e;
+      color: white;
+      border: none;
+      padding: 0.45rem 0.9rem;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-sm:hover:not(:disabled) { background: #a8651a; }
+    .btn-sm:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .spinner-text {
+      font-size: 0.82rem;
+      color: #aaa;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <a class="logo" href="/dashboard">BloodReview</a>
+      <a class="new-page-link" href="/tests">Tests</a>
+      <a class="new-page-link" href="/trends">Trends</a>
+      <a class="new-page-link" href="/profile">Profile</a>
+      <form action="/logout" method="POST" style="display:inline">
+        <button class="nav-btn" type="submit">Logout</button>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <h1 class="page-heading">My Blood Tests</h1>
+    <p class="page-sub">Upload a result, enter markers manually, or review your history below.</p>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tabCsvBtn"    onclick="showTab('csv')">Upload CSV</button>
+      <button class="tab-btn"        id="tabManualBtn" onclick="showTab('manual')">Enter manually</button>
+    </div>
+
+    <!-- Upload CSV -->
+    <div class="section-card" id="tabCsv">
+      <h2>Upload a CSV file</h2>
+      <p class="upload-hint">
+        Expected columns: <code>marker_name, value, unit, reference_low, reference_high</code><br>
+        <a href="/sample-test.csv" download>Download sample CSV →</a>
+      </p>
+      <form id="uploadForm">
+        <div class="form-row">
+          <div>
+            <label for="testDate">Test date</label>
+            <input type="date" id="testDate" name="testDate" required>
+          </div>
+          <div>
+            <label for="bloodtest">CSV file</label>
+            <input type="file" id="bloodtest" name="bloodtest" accept=".csv" required>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <button type="submit" id="uploadBtn">Upload test</button>
+          <span class="spinner-text hidden" id="uploadSpinner">Uploading…</span>
+        </div>
+      </form>
+      <p id="uploadMsg" class="msg hidden" style="margin-top:0.75rem"></p>
+    </div>
+
+    <!-- Manual entry -->
+    <div class="section-card hidden" id="tabManual">
+      <h2>Enter results manually</h2>
+      <p class="upload-hint">Add each marker from your results sheet. Reference range is optional but enables AI analysis and flagging.</p>
+      <form id="manualForm">
+        <label for="manualTestDate">Test date</label>
+        <input type="date" id="manualTestDate" name="manualTestDate" required style="max-width:220px">
+
+        <div id="markerRows" style="margin-top:1rem"></div>
+
+        <button type="button" class="add-row-btn" id="addRowBtn">+ Add another marker</button>
+
+        <div style="display:flex;align-items:center;gap:1rem">
+          <button type="submit">Save test</button>
+          <span class="spinner-text hidden" id="manualSpinner">Saving…</span>
+        </div>
+      </form>
+      <p id="manualMsg" class="msg hidden" style="margin-top:0.75rem"></p>
+    </div>
+
+    <!-- Past tests -->
+    <p class="section-title">Past Tests</p>
+    <div id="testList"><p class="muted">Loading…</p></div>
+
+    <!-- Marker detail panel -->
+    <div class="marker-panel hidden" id="markerPanel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title" id="markerPanelTitle">Markers</div>
+          <div class="panel-date" id="markerPanelDate"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
+          <span class="spinner-text hidden" id="analyseSpinner">Analysing…</span>
+          <button class="btn-sm" id="analyseBtn">✦ AI Analysis</button>
+        </div>
+      </div>
+
+      <p id="analyseMsg" class="msg hidden"></p>
+      <div id="analysisResult" class="hidden">
+        <div class="ai-result" id="analysisBox"></div>
+      </div>
+
+      <div class="ai-loading" id="analyseLoader">
+        <div class="ai-dots"><span></span><span></span><span></span></div>
+        Analysing this test…
+      </div>
+
+      <div style="overflow-x:auto">
+        <table class="marker-table">
+          <thead>
+            <tr>
+              <th>Marker</th>
+              <th>Value</th>
+              <th>Unit</th>
+              <th>Range</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="markerBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    let activeTestId = null;
+
+    // ── Tabs ──────────────────────────────────────────────────────────────────
+    function showTab(tab) {
+      document.getElementById('tabCsv').classList.toggle('hidden',    tab !== 'csv');
+      document.getElementById('tabManual').classList.toggle('hidden', tab !== 'manual');
+      document.getElementById('tabCsvBtn').classList.toggle('active',    tab === 'csv');
+      document.getElementById('tabManualBtn').classList.toggle('active', tab === 'manual');
+    }
+
+    // ── Manual entry rows ─────────────────────────────────────────────────────
+    let rowCount = 0;
+
+    function addMarkerRow(name = '', value = '', unit = '', low = '', high = '') {
+      rowCount++;
+      const div = document.createElement('div');
+      div.className = 'marker-entry-row';
+      div.dataset.row = rowCount;
+      div.innerHTML = `
+        <div class="marker-entry-fields">
+          <div>
+            <label>Marker name</label>
+            <input type="text" name="marker_name" placeholder="e.g. Haemoglobin" value="${name}" required>
+          </div>
+          <div>
+            <label>Value</label>
+            <input type="number" name="value" step="any" placeholder="145" value="${value}" required>
+          </div>
+          <div>
+            <label>Unit</label>
+            <input type="text" name="unit" placeholder="g/L" value="${unit}">
+          </div>
+          <div>
+            <label>Ref. low <span style="color:#ccc;font-weight:normal">(opt.)</span></label>
+            <input type="number" name="reference_low" step="any" placeholder="130" value="${low}">
+          </div>
+          <div>
+            <label>Ref. high <span style="color:#ccc;font-weight:normal">(opt.)</span></label>
+            <input type="number" name="reference_high" step="any" placeholder="170" value="${high}">
+          </div>
+          <div style="display:flex;align-items:flex-end;padding-bottom:1rem">
+            <button type="button" class="btn-danger btn-sm" style="padding:0.4rem 0.55rem;background:#fdecea;color:#9b1c1c;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem" onclick="removeRow(${rowCount})">✕</button>
+          </div>
+        </div>`;
+      document.getElementById('markerRows').appendChild(div);
+    }
+
+    function removeRow(n) {
+      const el = document.querySelector(`[data-row="${n}"]`);
+      if (el) el.remove();
+    }
+
+    document.getElementById('addRowBtn').addEventListener('click', () => addMarkerRow());
+    addMarkerRow();
+
+    // ── Manual form submit ────────────────────────────────────────────────────
+    document.getElementById('manualForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg     = document.getElementById('manualMsg');
+      const spinner = document.getElementById('manualSpinner');
+      msg.classList.add('hidden');
+      spinner.classList.remove('hidden');
+
+      const testDate = document.getElementById('manualTestDate').value;
+      const markers  = Array.from(document.querySelectorAll('.marker-entry-row')).map(row => ({
+        marker_name:    row.querySelector('[name="marker_name"]').value.trim(),
+        value:          row.querySelector('[name="value"]').value,
+        unit:           row.querySelector('[name="unit"]').value.trim(),
+        reference_low:  row.querySelector('[name="reference_low"]').value,
+        reference_high: row.querySelector('[name="reference_high"]').value,
+      }));
+
+      try {
+        const res  = await fetch('/api/tests/manual', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ testDate, markers }),
+        });
+        const data = await res.json();
+        msg.textContent = data.message;
+        msg.className   = res.ok ? 'msg success' : 'msg error';
+        msg.classList.remove('hidden');
+        if (res.ok) {
+          document.getElementById('manualTestDate').value = '';
+          document.getElementById('markerRows').innerHTML = '';
+          rowCount = 0;
+          addMarkerRow();
+          loadTests();
+        }
+      } catch {
+        msg.textContent = 'Save failed. Please try again.';
+        msg.className   = 'msg error';
+        msg.classList.remove('hidden');
+      } finally {
+        spinner.classList.add('hidden');
+      }
+    });
+
+    // ── Load test list ────────────────────────────────────────────────────────
+    async function loadTests() {
+      const res  = await fetch('/api/tests');
+      const data = await res.json();
+      const list = document.getElementById('testList');
+
+      if (!data.length) {
+        list.innerHTML = '<p class="muted">No tests added yet. Upload or enter one above.</p>';
+        return;
+      }
+
+      list.innerHTML = data.map(t => {
+        const d = new Date(t.test_date);
+        return `
+          <div class="test-item" id="test-${t.id}" onclick="loadMarkers(${t.id}, '${t.test_date}')">
+            <div>
+              <div class="test-item-date">${d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })}</div>
+              <div class="test-item-meta">${t.analysis ? 'AI analysis available' : 'No analysis yet'}</div>
+            </div>
+            <button class="view-btn">View markers →</button>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Load markers for a test ───────────────────────────────────────────────
+    async function loadMarkers(testId, testDate) {
+      // Highlight active test
+      document.querySelectorAll('.test-item').forEach(el => el.classList.remove('active'));
+      const activeEl = document.getElementById(`test-${testId}`);
+      if (activeEl) activeEl.classList.add('active');
+
+      activeTestId = testId;
+      const panel = document.getElementById('markerPanel');
+      panel.classList.remove('hidden');
+
+      const d = new Date(testDate);
+      document.getElementById('markerPanelTitle').textContent = 'Markers';
+      document.getElementById('markerPanelDate').textContent  =
+        d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+
+      document.getElementById('analysisResult').classList.add('hidden');
+      document.getElementById('analyseMsg').classList.add('hidden');
+      document.getElementById('analyseLoader').classList.remove('show');
+
+      const res     = await fetch(`/api/tests/${testId}/markers`);
+      const markers = await res.json();
+
+      document.getElementById('markerBody').innerHTML = markers.map(m => {
+        const val  = parseFloat(m.value);
+        const low  = m.reference_low  != null ? parseFloat(m.reference_low)  : null;
+        const high = m.reference_high != null ? parseFloat(m.reference_high) : null;
+
+        let status = 'none', statusLabel = '—';
+        if (low != null && high != null) {
+          if      (val < low)  { status = 'low';  statusLabel = '↓ Low';   }
+          else if (val > high) { status = 'high'; statusLabel = '↑ High';  }
+          else                 { status = 'ok';   statusLabel = '✓ Normal';}
+        }
+
+        const range = (low != null && high != null) ? `${low} – ${high}` : '—';
+
+        let barCell = '<td>—</td>';
+        if (low != null && high != null) {
+          const dMax   = high * 1.65;
+          const lowPct  = (low  / dMax * 100).toFixed(1);
+          const highPct = (high / dMax * 100).toFixed(1);
+          const valPct  = Math.min(Math.max(val / dMax * 100, 1), 99).toFixed(1);
+          const fadeIn  = Math.max(0,   +lowPct  - 10).toFixed(1);
+          const fadeOut = Math.min(100, +highPct + 10).toFixed(1);
+          const gradient = `linear-gradient(to right,#e74c3c 0%,#e67e22 ${fadeIn}%,#27ae60 ${lowPct}%,#27ae60 ${highPct}%,#e67e22 ${fadeOut}%,#e74c3c 100%)`;
+          barCell = `<td>
+            <div class="mini-bar" style="background:${gradient}">
+              <div class="mini-dot ${status}" style="left:${valPct}%"></div>
+            </div>
+          </td>`;
+        }
+
+        return `<tr>
+          <td style="font-weight:500">${escapeHtml(m.marker_name)}</td>
+          <td style="font-family:'Lora',serif;font-size:1rem">${val}</td>
+          <td style="color:#aaa">${escapeHtml(m.unit || '—')}</td>
+          ${barCell}
+          <td><span class="status-pill ${status}">${escapeHtml(statusLabel)}</span></td>
+        </tr>`;
+      }).join('');
+
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ── CSV upload ────────────────────────────────────────────────────────────
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg     = document.getElementById('uploadMsg');
+      const spinner = document.getElementById('uploadSpinner');
+      const btn     = document.getElementById('uploadBtn');
+      msg.classList.add('hidden');
+      spinner.classList.remove('hidden');
+      btn.disabled = true;
+
+      try {
+        const res  = await fetch('/upload', { method: 'POST', body: new FormData(e.target) });
+        const data = await res.json();
+        msg.textContent = data.message;
+        msg.className   = res.ok ? 'msg success' : 'msg error';
+        msg.classList.remove('hidden');
+        if (res.ok) { e.target.reset(); loadTests(); }
+      } catch {
+        msg.textContent = 'Upload failed. Please try again.';
+        msg.className   = 'msg error';
+        msg.classList.remove('hidden');
+      } finally {
+        spinner.classList.add('hidden');
+        btn.disabled = false;
+      }
+    });
+
+    // ── AI analysis ───────────────────────────────────────────────────────────
+    document.getElementById('analyseBtn').addEventListener('click', async () => {
+      if (!activeTestId) return;
+      const btn     = document.getElementById('analyseBtn');
+      const spinner = document.getElementById('analyseSpinner');
+      const loader  = document.getElementById('analyseLoader');
+      const msg     = document.getElementById('analyseMsg');
+      const result  = document.getElementById('analysisResult');
+      const box     = document.getElementById('analysisBox');
+
+      btn.disabled = true;
+      spinner.classList.remove('hidden');
+      loader.classList.add('show');
+      msg.classList.add('hidden');
+      result.classList.add('hidden');
+
+      try {
+        const res  = await fetch(`/api/tests/${activeTestId}/analyse`, { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) {
+          msg.textContent = data.message;
+          msg.className   = 'msg error';
+          msg.classList.remove('hidden');
+          return;
+        }
+        box.innerHTML = data.analysis
+          .split(/\n\n+/)
+          .filter(p => p.trim())
+          .map(p => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`)
+          .join('');
+        result.classList.remove('hidden');
+        if (data.contextSent && data.contextSent !== 'none') {
+          msg.textContent = `Context shared with AI: ${data.contextSent}`;
+          msg.className   = 'msg info';
+          msg.classList.remove('hidden');
+        }
+      } catch {
+        msg.textContent = 'Analysis failed. Please try again.';
+        msg.className   = 'msg error';
+        msg.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        spinner.classList.add('hidden');
+        loader.classList.remove('show');
+      }
+    });
+
+    loadTests();
+  </script>
+</body>
+</html>

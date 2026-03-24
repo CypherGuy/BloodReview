@@ -1,80 +1,395 @@
-body { 
-  margin: 0;
+/* ── Reset & base ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
   font-family: Arial, Helvetica, sans-serif;
-  background-color: #ffffff;
-  text-align: center;
+  background: #f7f7f7;
+  color: #222;
+  min-height: 100vh;
 }
 
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+h1 { font-size: 1.8rem; margin-bottom: 1rem; }
+h2 { font-size: 1.2rem; margin-bottom: 0.75rem; }
+p  { line-height: 1.6; }
+
+a { color: #c57a1e; }
+
+/* ── Header / nav ─────────────────────────────────────────────────────────── */
 header {
-  overflow: hidden;
-  background-color: #c57a1e;
-  text-align: center;
-  padding-left: 1%;
-  padding-top: 1%;
-  padding-bottom: 1%;
+  background: #c57a1e;
+  padding: 0.6rem 1.2rem;
+  display: flex;
+  align-items: center;
 }
 
-header a {
-  float: left;
-  color: black;
-  text-align: center;
-  text-decoration: none;
-  font-size: 18px; 
-  border-radius: 4px;
-}
-
-header .new-page-link{
-  padding: 1%;
-  margin: 1%;
-  float: right; 
+header > div {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .logo {
-  padding: 25px 0;
-  font-size: 25px;
+  font-size: 1.3rem;
   font-weight: bold;
-}
-
-header .new-page-link:hover {
-  background-color: #ddd;
-  color: black;
-}
-
-a.button, button {
+  color: #fff;
   text-decoration: none;
-  background-color: #c57a1e;
-  color: white;
-  padding: 14px 20px;
-  margin: 8px;
+  margin-right: auto;
+}
+
+.new-page-link {
+  color: #fff;
+  text-decoration: none;
+  padding: 0.4rem 0.7rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  transition: background 0.15s;
+}
+.new-page-link:hover { background: rgba(0,0,0,0.15); }
+
+/* nav logout button sits inside a form so it must look like a link */
+.nav-btn {
+  background: none;
   border: none;
+  color: #fff;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.95rem;
   cursor: pointer;
   border-radius: 4px;
-
+  transition: background 0.15s;
 }
+.nav-btn:hover { background: rgba(0,0,0,0.15); }
 
-.loginDetails {
-  padding: 1%;
-  margin: 1%;
-  font-size: 20px; /* Adjust the font size as needed */
-
-}
-
-.loginText{
-  padding: 12px 20px;
-  margin: 8px 0;
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+button, a.button {
+  background: #c57a1e;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  text-decoration: none;
   display: inline-block;
+  transition: background 0.15s;
+}
+button:hover, a.button:hover { background: #a8661a; }
+
+.btn-danger {
+  background: #e74c3c;
+  margin-left: 0.5rem;
+}
+.btn-danger:hover { background: #c0392b; }
+
+/* ── Forms ────────────────────────────────────────────────────────────────── */
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="file"],
+select,
+textarea {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  margin-bottom: 1rem;
   border: 1px solid #ccc;
-  box-sizing: border-box;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: #fff;
+}
+textarea { resize: vertical; }
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
 }
 
-@media screen and (max-width: 500px) {
-  header a {
-    float: none;
-    display: block;
-    text-align: left;
+/* checkbox toggle labels */
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: normal;
+  margin-bottom: 0.6rem;
+  cursor: pointer;
+}
+.toggle-label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.form-actions { margin-top: 1rem; display: flex; align-items: center; gap: 0.75rem; }
+
+/* ── Cards ────────────────────────────────────────────────────────────────── */
+.card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s;
+}
+a.card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.card-grid .card { margin-bottom: 0; }
+
+/* ── Messages ─────────────────────────────────────────────────────────────── */
+.msg         { margin-top: 0.75rem; font-size: 0.95rem; }
+.msg.success { color: #27ae60; }
+.msg.error   { color: #e74c3c; }
+.msg.info    { color: #2980b9; font-size: 0.85rem; }
+.hidden      { display: none !important; }
+.muted       { color: #888; font-size: 0.95rem; }
+
+.hint {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+.hint code {
+  background: #f0f0f0;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+/* ── Spinner ──────────────────────────────────────────────────────────────── */
+.spinner { font-style: italic; color: #888; font-size: 0.9rem; }
+
+/* ── Tables ───────────────────────────────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+th, td {
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid #e8e8e8;
+}
+th { background: #f4f4f4; font-weight: bold; }
+tr:last-child td { border-bottom: none; }
+
+/* Out-of-range row highlights */
+tr.flag-low  td:last-child { color: #e74c3c; font-weight: bold; }
+tr.flag-high td:last-child { color: #e74c3c; font-weight: bold; }
+tr.flag-ok   td:last-child { color: #27ae60; }
+
+/* ── Test list ────────────────────────────────────────────────────────────── */
+.test-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid #eee;
+}
+.test-row:last-child { border-bottom: none; }
+
+/* ── Analysis box ─────────────────────────────────────────────────────────── */
+.analysis-box {
+  background: #fffbf2;
+  border: 1px solid #f0d080;
+  border-radius: 4px;
+  padding: 1rem 1.2rem;
+  margin: 0.75rem 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+.tab-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+
+.tab-btn {
+  background: #e8e8e8;
+  color: #444;
+  border: none;
+  padding: 0.5rem 1.1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.tab-btn:hover  { background: #d4d4d4; }
+.tab-btn.active { background: #c57a1e; color: #fff; }
+
+/* ── Manual marker entry ──────────────────────────────────────────────────── */
+.marker-entry-row { border-bottom: 1px solid #eee; padding-bottom: 1rem; margin-bottom: 1rem; }
+.marker-entry-row:last-child { border-bottom: none; }
+
+.marker-entry-fields {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+  gap: 0.5rem;
+  align-items: end;
+}
+.marker-entry-fields input { margin-bottom: 0; }
+.marker-entry-fields label { font-size: 0.8rem; }
+
+.remove-btn-wrap { display: flex; align-items: flex-end; padding-bottom: 0; }
+
+.btn-sm { padding: 0.4rem 0.6rem; font-size: 0.85rem; }
+
+/* ── Upload section ───────────────────────────────────────────────────────── */
+.upload-section label  { margin-top: 0.5rem; }
+
+/* ── Profile form ─────────────────────────────────────────────────────────── */
+.profile-form  { max-width: 600px; }
+.danger-zone   { max-width: 600px; }
+.danger-zone h2 { margin-bottom: 1rem; }
+
+/* ── Marker cards (dashboard) ─────────────────────────────────────────────── */
+.marker-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.75rem;
+}
+.marker-card.status-low,
+.marker-card.status-high  { border-left: 4px solid #e74c3c; }
+.marker-card.status-normal { border-left: 4px solid #27ae60; }
+
+.marker-card-top {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+}
+.marker-card-name   { font-weight: bold; font-size: 1rem; flex: 1; }
+.marker-card-value  { font-size: 1.15rem; font-weight: bold; color: #333; }
+.marker-card-unit   { font-size: 0.8rem; font-weight: normal; color: #888; }
+
+.marker-card-status {
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+}
+.status-normal .marker-card-status { background: #d4edda; color: #155724; }
+.status-low    .marker-card-status { background: #f8d7da; color: #721c24; }
+.status-high   .marker-card-status { background: #f8d7da; color: #721c24; }
+
+/* ── Range bar ────────────────────────────────────────────────────────────── */
+.range-bar-wrap { margin-top: 0.4rem; }
+
+.range-bar {
+  position: relative;
+  height: 10px;
+  background: #f0f0f0;
+  border-radius: 5px;
+  overflow: visible;
+}
+
+.range-normal {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: rgba(39,174,96,0.25);
+  border: 1px solid rgba(39,174,96,0.5);
+  border-radius: 3px;
+}
+
+.range-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  cursor: default;
+}
+.range-marker-ok  { background: #27ae60; }
+.range-marker-bad { background: #e74c3c; }
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #999;
+  margin-top: 0.3rem;
+  padding: 0 2px;
+}
+.range-label-center { color: #27ae60; font-weight: bold; }
+
+/* ── AI overview section ──────────────────────────────────────────────────── */
+.ai-overview-section { margin-bottom: 2rem; }
+
+.ai-overview-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+.ai-overview-header h2 { margin-bottom: 0.25rem; }
+
+/* ── Chart container ──────────────────────────────────────────────────────── */
+#chartContainer {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+#controls { margin-top: 1.5rem; }
+#controls select { display: inline-block; width: auto; min-width: 220px; }
+
+/* ── Homepage ─────────────────────────────────────────────────────────────── */
+body > h1 { margin-top: 2rem; }
+
+/* ── Login / signup pages ─────────────────────────────────────────────────── */
+.loginDetails {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  padding: 0.55rem 0.75rem;
+  margin: 0 auto 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+.loginText {
+  margin-bottom: 0.25rem;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .marker-entry-fields {
+    grid-template-columns: 1fr 1fr;
   }
-  
-  header-right {
-    float: none;
-  }
+}
+
+@media (max-width: 500px) {
+  header > div { flex-wrap: wrap; }
+  .logo { width: 100%; margin-bottom: 0.3rem; }
+  table { font-size: 0.8rem; }
+  th, td { padding: 0.4rem 0.4rem; }
+  .marker-entry-fields { grid-template-columns: 1fr; }
 }

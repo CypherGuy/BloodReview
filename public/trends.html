@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BloodReview – Trends</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    body { background: #faf8f5; font-family: 'DM Sans', sans-serif; }
+
+    .page-heading {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 1.9rem;
+      font-weight: 600;
+      font-style: italic;
+      color: #1a1714;
+      margin-bottom: 0.2rem;
+    }
+    .page-sub { font-size: 0.88rem; color: #9e9690; margin-bottom: 2rem; }
+
+    /* ── Marker selector ──────────────────────────────────────────────────── */
+    .selector-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+    .selector-label {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #7a746c;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    #markerSelect {
+      display: inline-block;
+      width: auto;
+      min-width: 220px;
+      padding: 0.55rem 2rem 0.55rem 0.75rem;
+      border: 1.5px solid #ece7df;
+      border-radius: 8px;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239e9690' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+      appearance: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      color: #1a1714;
+      cursor: pointer;
+    }
+    #markerSelect:focus { outline: none; border-color: #c57a1e; }
+
+    /* ── Status badge next to selector ───────────────────────────────────── */
+    .current-status {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.22rem 0.6rem;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+    }
+    .current-status.ok   { background: #e5f5ec; color: #1a6b3a; }
+    .current-status.low  { background: #fdecea; color: #9b1c1c; }
+    .current-status.high { background: #fdecea; color: #9b1c1c; }
+    .current-status.none { display: none; }
+
+    /* ── Chart card ───────────────────────────────────────────────────────── */
+    .chart-card {
+      background: #fff;
+      border: 1px solid #ece7df;
+      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.75rem;
+    }
+    .chart-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .chart-marker-name {
+      font-family: 'Lora', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1a1714;
+    }
+    .chart-unit { font-size: 0.82rem; color: #aaa49e; margin-top: 0.15rem; }
+
+    .chart-stats {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: right; }
+    .stat-val {
+      font-family: 'Lora', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1a1714;
+      line-height: 1;
+    }
+    .stat-lbl { font-size: 0.72rem; color: #aaa49e; margin-top: 0.15rem; }
+
+    /* ── All markers grid ─────────────────────────────────────────────────── */
+    .markers-grid-title {
+      font-family: 'Lora', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1a1714;
+      margin-bottom: 0.4rem;
+    }
+    .markers-grid-sub { font-size: 0.8rem; color: #bbb5ae; margin-bottom: 1rem; }
+
+    .markers-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.7rem;
+      margin-bottom: 2rem;
+    }
+    .summary-chip {
+      background: #fff;
+      border: 1px solid #ece7df;
+      border-left: 3px solid #ece7df;
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+      cursor: pointer;
+      transition: box-shadow 0.15s, border-left-color 0.15s;
+    }
+    .summary-chip:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .summary-chip.ok   { border-left-color: #27ae60; }
+    .summary-chip.low  { border-left-color: #e74c3c; }
+    .summary-chip.high { border-left-color: #e74c3c; }
+    .summary-chip.active { box-shadow: 0 0 0 2px rgba(197,122,30,0.3); border-color: #c57a1e; }
+
+    .chip-name {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #7a746c;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chip-val {
+      font-family: 'Lora', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #1a1714;
+      line-height: 1;
+    }
+    .chip-unit { font-size: 0.72rem; color: #aaa49e; }
+    .chip-trend { font-size: 0.72rem; margin-top: 0.25rem; color: #9e9690; }
+
+    /* ── Empty / no-data ──────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #9e9690;
+    }
+    .empty-state p { margin-bottom: 1rem; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <a class="logo" href="/dashboard">BloodReview</a>
+      <a class="new-page-link" href="/tests">Tests</a>
+      <a class="new-page-link" href="/trends">Trends</a>
+      <a class="new-page-link" href="/profile">Profile</a>
+      <form action="/logout" method="POST" style="display:inline">
+        <button class="nav-btn" type="submit">Logout</button>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <h1 class="page-heading">Trends Over Time</h1>
+    <p class="page-sub">See how each of your blood markers has changed across your tests.</p>
+
+    <!-- Empty state -->
+    <div class="empty-state hidden" id="noDataMsg">
+      <p>No trend data yet — you need at least two tests with the same markers to see trends.</p>
+      <a class="button" href="/tests">Upload a test →</a>
+    </div>
+
+    <!-- Marker summary chips -->
+    <div id="summarySection" class="hidden">
+      <p class="markers-grid-title">All Markers</p>
+      <p class="markers-grid-sub">Click any marker to view its trend chart.</p>
+      <div class="markers-summary-grid" id="summaryGrid"></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-card hidden" id="chartCard">
+      <div class="chart-header">
+        <div>
+          <div class="chart-marker-name" id="chartTitle">—</div>
+          <div class="chart-unit"        id="chartUnit"></div>
+        </div>
+        <div class="chart-stats" id="chartStats"></div>
+      </div>
+      <canvas id="trendChart"></canvas>
+    </div>
+
+    <!-- Dropdown fallback for accessibility -->
+    <div class="selector-bar hidden" id="controls">
+      <span class="selector-label">Marker</span>
+      <select id="markerSelect"></select>
+      <span class="current-status none" id="currentStatus"></span>
+    </div>
+  </main>
+
+  <script>
+    let allData = {};
+    let chart   = null;
+
+    async function loadTrends() {
+      const res  = await fetch('/api/trends');
+      allData    = await res.json();
+      const keys = Object.keys(allData);
+
+      if (keys.length === 0) {
+        document.getElementById('noDataMsg').classList.remove('hidden');
+        return;
+      }
+
+      // Populate dropdown
+      const sel = document.getElementById('markerSelect');
+      keys.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = opt.textContent = name;
+        sel.appendChild(opt);
+      });
+      document.getElementById('controls').classList.remove('hidden');
+
+      // Build summary chips
+      buildSummaryGrid(keys);
+      document.getElementById('summarySection').classList.remove('hidden');
+      document.getElementById('chartCard').classList.remove('hidden');
+
+      renderChart(keys[0]);
+      highlightChip(keys[0]);
+    }
+
+    function buildSummaryGrid(keys) {
+      const grid = document.getElementById('summaryGrid');
+      grid.innerHTML = keys.map(name => {
+        const pts    = allData[name];
+        const latest = pts[pts.length - 1];
+        const val    = latest.value;
+        const low    = latest.reference_low;
+        const high   = latest.reference_high;
+
+        let cls = '';
+        if (low != null && high != null) {
+          cls = val < low ? 'low' : val > high ? 'high' : 'ok';
+        }
+
+        // Simple trend: compare first and last
+        let trendText = '';
+        if (pts.length >= 2) {
+          const diff = val - pts[0].value;
+          if      (Math.abs(diff) < 0.01) trendText = '→ Stable';
+          else if (diff > 0)              trendText = `↑ +${diff.toFixed(1)} since first test`;
+          else                            trendText = `↓ ${diff.toFixed(1)} since first test`;
+        }
+
+        return `<div class="summary-chip ${cls}" data-name="${name}" onclick="selectMarker('${name}')">
+          <div class="chip-name">${name}</div>
+          <div><span class="chip-val">${val}</span> <span class="chip-unit">${latest.unit || ''}</span></div>
+          ${trendText ? `<div class="chip-trend">${trendText}</div>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    function selectMarker(name) {
+      document.getElementById('markerSelect').value = name;
+      renderChart(name);
+      highlightChip(name);
+      document.getElementById('chartCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function highlightChip(name) {
+      document.querySelectorAll('.summary-chip').forEach(el => {
+        el.classList.toggle('active', el.dataset.name === name);
+      });
+    }
+
+    function renderChart(markerName) {
+      const pts  = allData[markerName];
+      const low  = pts[0].reference_low;
+      const high = pts[0].reference_high;
+      const unit = pts[0].unit || '';
+
+      const labels = pts.map(p =>
+        new Date(p.test_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }));
+      const values = pts.map(p => p.value);
+
+      // Update header
+      document.getElementById('chartTitle').textContent = markerName;
+      document.getElementById('chartUnit').textContent  = unit ? `Measured in ${unit}` : '';
+
+      // Stats: latest, min, max
+      const latest = values[values.length - 1];
+      const min    = Math.min(...values);
+      const max    = Math.max(...values);
+      let latestStatus = '', latestLabel = '';
+      if (low != null && high != null) {
+        if      (latest < low)  { latestStatus = 'low';  latestLabel = '↓ Low';   }
+        else if (latest > high) { latestStatus = 'high'; latestLabel = '↑ High';  }
+        else                    { latestStatus = 'ok';   latestLabel = '✓ Normal';}
+      }
+      const statusEl = document.getElementById('currentStatus');
+      statusEl.textContent  = latestLabel;
+      statusEl.className    = `current-status ${latestStatus || 'none'}`;
+
+      document.getElementById('chartStats').innerHTML = `
+        <div class="stat"><div class="stat-val">${latest}</div><div class="stat-lbl">Latest</div></div>
+        <div class="stat"><div class="stat-val">${min}</div><div class="stat-lbl">Min</div></div>
+        <div class="stat"><div class="stat-val">${max}</div><div class="stat-lbl">Max</div></div>
+      `;
+
+      if (chart) chart.destroy();
+
+      const datasets = [{
+        label: markerName,
+        data:  values,
+        borderColor:          '#c57a1e',
+        backgroundColor:      'rgba(197,122,30,0.08)',
+        pointBackgroundColor: values.map(v => {
+          if (low  != null && v < low)  return '#e74c3c';
+          if (high != null && v > high) return '#e74c3c';
+          return '#27ae60';
+        }),
+        pointBorderColor:  '#fff',
+        pointBorderWidth:  2,
+        pointRadius:       7,
+        pointHoverRadius:  9,
+        tension:           0.35,
+        fill:              false,
+      }];
+
+      if (low  != null) datasets.push({
+        label: `Lower limit (${low} ${unit})`,
+        data:  Array(values.length).fill(low),
+        borderColor:  'rgba(231,76,60,0.35)',
+        borderDash:   [5, 5],
+        borderWidth:  1.5,
+        pointRadius:  0,
+        fill:         false,
+      });
+      if (high != null) datasets.push({
+        label: `Upper limit (${high} ${unit})`,
+        data:  Array(values.length).fill(high),
+        borderColor:       'rgba(231,76,60,0.35)',
+        borderDash:        [5, 5],
+        borderWidth:       1.5,
+        pointRadius:       0,
+        fill:              '-1',
+        backgroundColor:   'rgba(39,174,96,0.06)',
+      });
+
+      chart = new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                font:      { family: "'DM Sans', sans-serif", size: 12 },
+                color:     '#7a746c',
+                boxWidth:  16,
+                padding:   16,
+              },
+            },
+            tooltip: {
+              mode:       'index',
+              intersect:  false,
+              backgroundColor: '#fff',
+              titleColor: '#1a1714',
+              bodyColor:  '#7a746c',
+              borderColor:'#ece7df',
+              borderWidth: 1,
+              titleFont:  { family: "'Lora', serif", size: 13 },
+              bodyFont:   { family: "'DM Sans', sans-serif", size: 12 },
+              padding:    10,
+            },
+          },
+          scales: {
+            x: {
+              grid:  { color: 'rgba(0,0,0,0.04)' },
+              ticks: { font: { family: "'DM Sans', sans-serif", size: 11 }, color: '#aaa49e' },
+            },
+            y: {
+              title: { display: !!unit, text: unit, font: { family: "'DM Sans', sans-serif", size: 11 }, color: '#aaa49e' },
+              grid:  { color: 'rgba(0,0,0,0.04)' },
+              ticks: { font: { family: "'DM Sans', sans-serif", size: 11 }, color: '#aaa49e' },
+            },
+          },
+        },
+      });
+    }
+
+    document.getElementById('markerSelect').addEventListener('change', e => {
+      renderChart(e.target.value);
+      highlightChip(e.target.value);
+    });
+
+    loadTrends();
+  </script>
+</body>
+</html>
