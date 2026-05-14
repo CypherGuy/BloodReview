@@ -139,10 +139,14 @@ app.get('/profile',   isAuthenticated, (_req, res) => res.sendFile(path.join(__d
 
 // ── Server ────────────────────────────────────────────────────────────────────
 
-const PORT = process.env.PORT || 5500;
-app.listen(PORT, () => console.log(`BloodReview running on port ${PORT}`));
-
 app.use((err, _req, res, _next) => {
   console.error(err.stack);
   res.status(500).send('Something went wrong!');
 });
+
+if (require.main === module) {
+  const PORT = process.env.PORT || 5500;
+  app.listen(PORT, () => console.log(`BloodReview running on port ${PORT}`));
+}
+
+module.exports = app;
